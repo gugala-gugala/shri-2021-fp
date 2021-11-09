@@ -18,13 +18,6 @@ import Api from '../tools/api';
 import { allPass, compose, lt, gt, length, test, tap, mathMod, partialRight, ifElse, andThen, otherwise } from 'ramda';
 const api = new Api();
 
-/**
- * Я – пример, удали меня
- */
-const wait = time => new Promise(resolve => {
-    setTimeout(resolve, time);
-});
-
 const less10Digit = compose(
     partialRight(lt, [10]),
     length
@@ -35,11 +28,13 @@ const more2Digit = compose(
 )
 const isFloat = test(/^\d+(\.\d+)?$/);
 const validate = allPass([less10Digit, more2Digit, isFloat]);
-
+const square = n => n * n;
 const processSequence = ({value, writeLog, handleSuccess, handleError}) => {
     const logValidationError = () => handleError('ValidationError');
     const action = (v) => {
-        api.get('https://api.tech/numbers/base', {from: 10, to: 2, number: Math.round(v)}).then(({result}) => {
+        let val = Math.round(v);
+        writeLog(val);
+        api.get('https://api.tech/numbers/base', {from: 10, to: 2, number: val}).then(({result}) => {
             forAnimal(result);
         }).catch((e) => {
             handleError(e);
@@ -62,7 +57,10 @@ const processSequence = ({value, writeLog, handleSuccess, handleError}) => {
         tap(writeLog),
         partialRight(mathMod, [3]),
         tap(writeLog),
-        length
+        square,
+        tap(writeLog),
+        length,
+        tap(writeLog)
     )
 }
 

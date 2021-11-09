@@ -12,7 +12,7 @@
  *
  * Если какие либо функции написаны руками (без использования библиотек) это не является ошибкой
  */
-import { all, pick, compose, filter, equals, values, gte, length, map, allPass, anyPass, reduce, not, max, prop, groupBy } from 'ramda';
+import { all, and, pick, compose, filter, equals, values, gte, length, map, allPass, anyPass, reduce, not, max, prop, groupBy } from 'ramda';
 
 const isRed = equals('red');
 const isGreen = equals('green');
@@ -45,11 +45,7 @@ const min2Green = compose(
     countOfGreen
 );
 // 3.
-const countRB = shapes => [countOfRed(shapes), countOfBlue(shapes)];
-const equalRedAndBlue = compose(
-    equals,
-    countRB
-)
+const equalRedAndBlue = (shapes) => equals(countOfRed(shapes), countOfBlue(shapes));
 // 4.
 const blueCircle = compose(isBlue, getCircle);
 const orangeSquare = compose(isOrange, getSquare);
@@ -92,7 +88,7 @@ const notRedOrWhiteStar = compose(
 // 9.
 const allIsGreen = shapes => all(isGreen, values(shapes));
 // 10.
-const isEqual = (args) => args[0] === args[1];
+const isEqual = (args) => and(args[0] === args[1], args[0] !== 'white');
 const triangleAndSquare = compose(
     isEqual,
     values,
