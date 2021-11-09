@@ -15,7 +15,7 @@
  * Ответ будет приходить в поле {result}
  */
 import Api from '../tools/api';
-
+import { allPass, compose, lt, gt, length, test, tap, mathMod, partialRight, ifElse, andThen, otherwise } from 'ramda';
 const api = new Api();
 
 /**
@@ -23,29 +23,47 @@ const api = new Api();
  */
 const wait = time => new Promise(resolve => {
     setTimeout(resolve, time);
-})
+});
+
+const less10Digit = compose(
+    partialRight(lt, [10]),
+    length
+)
+const more2Digit = compose(
+    partialRight(gt, [2]),
+    length
+)
+const isFloat = test(/^\d+(\.\d+)?$/);
+const validate = allPass([less10Digit, more2Digit, isFloat]);
 
 const processSequence = ({value, writeLog, handleSuccess, handleError}) => {
-    /**
-     * Я – пример, удали меня
-     */
+    const logValidationError = () => handleError('ValidationError');
+    const action = (v) => {
+        api.get('https://api.tech/numbers/base', {from: 10, to: 2, number: Math.round(v)}).then(({result}) => {
+            forAnimal(result);
+        }).catch((e) => {
+            handleError(e);
+        });
+    }
     writeLog(value);
 
-    api.get('https://api.tech/numbers/base', {from: 2, to: 10, number: '01011010101'}).then(({result}) => {
-        writeLog(result);
-    });
+    const v = ifElse(validate, action, logValidationError);
+    v(value);
 
-    wait(2500).then(() => {
-        writeLog('SecondLog')
-
-        return wait(1500);
-    }).then(() => {
-        writeLog('ThirdLog');
-
-        return wait(400);
-    }).then(() => {
-        handleSuccess('Done');
-    });
+    const getAnimal = async (id) => {
+        let url = `https://animals.tech/${id}`;
+        let z = await api.get(url, {});
+        return z.result;
+    }
+    const forAnimal = compose(
+        otherwise(handleError),
+        andThen(handleSuccess),
+        getAnimal,
+        tap(writeLog),
+        partialRight(mathMod, [3]),
+        tap(writeLog),
+        length
+    )
 }
 
 export default processSequence;
