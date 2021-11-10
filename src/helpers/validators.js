@@ -12,7 +12,26 @@
  *
  * Если какие либо функции написаны руками (без использования библиотек) это не является ошибкой
  */
-import { all, and, pick, compose, filter, equals, values, gte, length, map, allPass, anyPass, reduce, not, max, prop, groupBy } from 'ramda';
+import {
+    all,
+    allPass, 
+    and, 
+    anyPass, 
+    compose, 
+    equals, 
+    filter, 
+    groupBy, 
+    gte, 
+    length, 
+    map, 
+    max, 
+    not, 
+    partialRight, 
+    pick, 
+    prop, 
+    reduce, 
+    values, 
+} from 'ramda';
 
 const isRed = equals('red');
 const isGreen = equals('green');
@@ -32,28 +51,30 @@ const countOfBlue = (shapes) => countOf(isBlue, shapes);
 const countOfRed = (shapes) => countOf(isRed, shapes);
 const countOfWhite = (shapes) => countOf(isWhite, shapes);
 
-const redStar = compose(isRed, getStar);
+// конкретные экземпляры
+const isRedStar = compose(isRed, getStar);
+const isGreenSquare = compose(isGreen, getSquare);
+const isBlueCircle = compose(isBlue, getCircle);
+const isGreenTreangle = compose(isGreen, getTriangle);
+const isWhiteStar = compose(isWhite, getStar);
 
 // 1.
-const greenSquare = compose(isGreen, getSquare);
 const e2White = compose(equals(2), countOfWhite);
-const redStarGreenSquare = allPass([redStar, greenSquare, e2White]);
+const redStarGreenSquare = allPass([isRedStar, isGreenSquare, e2White]);
+
 // 2.
-const gte2 = (list) => gte(list, 2);
 const min2Green = compose(
-    gte2,
+    partialRight(gte, [2]),
     countOfGreen
 );
 // 3.
 const equalRedAndBlue = (shapes) => equals(countOfRed(shapes), countOfBlue(shapes));
 // 4.
-const blueCircle = compose(isBlue, getCircle);
 const orangeSquare = compose(isOrange, getSquare);
-const is4 = allPass([blueCircle, redStar, orangeSquare])
+const is4 = allPass([isBlueCircle, isRedStar, orangeSquare])
 // 5.
-const gte3 = (list) => gte(list, 3);
 const min3Equal = compose(
-    gte3,
+    partialRight(gte, [3]),
     reduce(max, 0),
     map(length),
     values,
@@ -62,7 +83,6 @@ const min3Equal = compose(
     values
 )
 // 6.
-const greenTreangle = compose(isGreen, getTriangle);
 const e2Green = compose(
     equals(2),
     countOfGreen
@@ -71,7 +91,7 @@ const e1Red = compose(
     equals(1),
     countOfRed
 )
-const green2AndRed = allPass([greenTreangle, e2Green, e1Red]);
+const green2AndRed = allPass([isGreenTreangle, e2Green, e1Red]);
 // 7.
 const allOrange = compose(
     all(a=>a),
@@ -79,8 +99,6 @@ const allOrange = compose(
     values
 );
 // 8.
-const isRedStar = compose(isRed, getStar);
-const isWhiteStar = compose(isWhite, getStar);
 const notRedOrWhiteStar = compose(
     not,
     anyPass([isRedStar, isWhiteStar])
@@ -88,9 +106,9 @@ const notRedOrWhiteStar = compose(
 // 9.
 const allIsGreen = shapes => all(isGreen, values(shapes));
 // 10.
-const isEqual = (args) => and(args[0] === args[1], args[0] !== 'white');
+const isEqualNoWhite = (args) => and(args[0] === args[1], args[0] !== 'white');
 const triangleAndSquare = compose(
-    isEqual,
+    isEqualNoWhite,
     values,
     pick(['triangle', 'square'])
 );
